@@ -14,7 +14,7 @@ object ConnectionPool {
   def connect(re: RedisEndpoint): Jedis = {
     val pool = pools.getOrElseUpdate(re,
       {
-        val poolConfig: JedisPoolConfig = new JedisPoolConfig();
+        val poolConfig: JedisPoolConfig = new JedisPoolConfig()
         poolConfig.setMaxTotal(250)
         poolConfig.setMaxIdle(32)
         poolConfig.setTestOnBorrow(false)

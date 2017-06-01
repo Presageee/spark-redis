@@ -17,15 +17,15 @@ var notAtAllAMagicNumber = 1234
     <name>Scalastyle standard configuration</name>
     <check level="warning" class="org.scalastyle.file.FileTabChecker" enabled="true"></check>
     <check level="warning" class="org.scalastyle.file.FileLengthChecker" enabled="true">
-     <parameters>
-      <parameter name="maxFileLength"><![CDATA[800]]></parameter>
-     </parameters>
+        <parameters>
+            <parameter name="maxFileLength"><![CDATA[800]]></parameter>
+        </parameters>
     </check>
     <!--<check level="warning" class="org.scalastyle.file.HeaderMatchesChecker" enabled="true">-->
-     <!--<parameters>-->
-      <!--<parameter name="header"><![CDATA[/**-->
- <!--*/]]></parameter>-->
-     <!--</parameters>-->
+    <!--<parameters>-->
+    <!--<parameter name="header"><![CDATA[/**-->
+    <!--*/]]></parameter>-->
+    <!--</parameters>-->
     <!--</check>-->
     <check level="warning" class="org.scalastyle.scalariform.SpacesAfterPlusChecker" enabled="true"></check>
     <check level="warning" class="org.scalastyle.file.WhitespaceEndOfLineChecker" enabled="true"></check>
@@ -111,9 +111,9 @@ var notAtAllAMagicNumber = 1234
         </parameters>
     </check>
     <check level="warning" class="org.scalastyle.scalariform.NumberOfMethodsInTypeChecker" enabled="true">
-     <parameters>
-         <parameter name="maxMethods"><![CDATA[30]]></parameter>
-     </parameters>
+        <parameters>
+            <parameter name="maxMethods"><![CDATA[30]]></parameter>
+        </parameters>
     </check>
     <check level="warning" class="org.scalastyle.scalariform.PublicMethodsHaveTypeChecker" enabled="true"></check>
     <check level="warning" class="org.scalastyle.file.NewLineAtEofChecker" enabled="true"></check>

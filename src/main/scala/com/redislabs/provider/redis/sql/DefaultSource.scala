@@ -6,8 +6,7 @@ import scala.collection.JavaConversions._
 import com.redislabs.provider.redis._
 import com.redislabs.provider.redis.rdd.{Keys, RedisKeysRDD}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, SQLContext}
-import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import redis.clients.jedis.Protocol
@@ -23,17 +22,17 @@ case class RedisRelation(parameters: Map[String, String], userSchema: StructType
 
   val redisConfig: RedisConfig = {
     new RedisConfig({
-        if ((parameters.keySet & Set("host", "port", "auth", "dbNum", "timeout")).size == 0) {
-          new RedisEndpoint(sqlContext.sparkContext.getConf)
-        } else {
-          val host = parameters.getOrElse("host", Protocol.DEFAULT_HOST)
-          val port = parameters.getOrElse("port", Protocol.DEFAULT_PORT.toString).toInt
-          val auth = parameters.getOrElse("auth", null)
-          val dbNum = parameters.getOrElse("dbNum", Protocol.DEFAULT_DATABASE.toString).toInt
-          val timeout = parameters.getOrElse("timeout", Protocol.DEFAULT_TIMEOUT.toString).toInt
-          new RedisEndpoint(host, port, auth, dbNum, timeout)
-        }
+      if ((parameters.keySet & Set("host", "port", "auth", "dbNum", "timeout")).isEmpty) {
+        new RedisEndpoint(sqlContext.sparkContext.getConf)
+      } else {
+        val host = parameters.getOrElse("host", Protocol.DEFAULT_HOST)
+        val port = parameters.getOrElse("port", Protocol.DEFAULT_PORT.toString).toInt
+        val auth = parameters.getOrElse("auth", null)
+        val dbNum = parameters.getOrElse("dbNum", Protocol.DEFAULT_DATABASE.toString).toInt
+        val timeout = parameters.getOrElse("timeout", Protocol.DEFAULT_TIMEOUT.toString).toInt
+        new RedisEndpoint(host, port, auth, dbNum, timeout)
       }
+    }
     )
   }
 
@@ -44,11 +43,13 @@ case class RedisRelation(parameters: Map[String, String], userSchema: StructType
   def getNode(key: String): RedisNode = {
     val slot = JedisClusterCRC16.getSlot(key)
     /* Master only */
-    redisConfig.hosts.filter(node => { node.startSlot <= slot && node.endSlot >= slot }).filter(_.idx == 0)(0)
+    redisConfig.hosts.filter(node => {
+      node.startSlot <= slot && node.endSlot >= slot
+    }).filter(_.idx == 0)(0)
   }
 
   def insert(data: DataFrame, overwrite: Boolean): Unit = {
-    data.foreachPartition{
+    data.foreachPartition {
       partition => {
         val m: Map[String, Row] = partition.map {
           row => {
@@ -57,18 +58,18 @@ case class RedisRelation(parameters: Map[String, String], userSchema: StructType
             (tn, row)
           }
         }.toMap
-        groupKeysByNode(redisConfig.hosts, m.keysIterator).foreach{
-          case(node, keys) => {
-            val conn = node.connect
+        groupKeysByNode(redisConfig.hosts, m.keysIterator).foreach {
+          case (node, keys) => {
+            val conn = node.connect()
             val pipeline = conn.pipelined
-            keys.foreach{
+            keys.foreach {
               key => {
-                val row = m.get(key).get
+                val row = m(key)
                 pipeline.hmset(key, row.getValuesMap(row.schema.fieldNames).map(x => (x._1, x._2.toString)))
               }
             }
-            pipeline.sync
-            conn.close
+            pipeline.sync()
+            conn.close()
           }
         }
       }
@@ -76,9 +77,11 @@ case class RedisRelation(parameters: Map[String, String], userSchema: StructType
   }
 
   def buildScan(requiredColumns: Array[String], filters: Array[Filter]): RDD[Row] = {
-    val colsForFilter = filters.map(getAttr(_)).sorted.distinct
+    val attr = getAttr _
+    val dataType = getDataType _
+    val colsForFilter = filters.map(attr).sorted.distinct
     val colsForFilterWithIndex = colsForFilter.zipWithIndex.toMap
-    val requiredColumnsType = requiredColumns.map(getDataType(_))
+    val requiredColumnsType = requiredColumns.map(dataType)
     new RedisKeysRDD(sqlContext.sparkContext, redisConfig, tableName + ":*", partitionNum, null).
       mapPartitions {
         partition: Iterator[String] => {
@@ -90,21 +93,21 @@ case class RedisRelation(parameters: Map[String, String], userSchema: StructType
               val rowKeys = if (colsForFilter.length == 0) {
                 keys
               } else {
-                keys.foreach(key => pipeline.hmget(key, colsForFilter:_*))
+                keys.foreach(key => pipeline.hmget(key, colsForFilter: _*))
                 keys.zip(pipeline.syncAndReturnAll).filter {
                   x => {
                     val content = x._2.asInstanceOf[util.ArrayList[String]]
                     filters.forall {
-                      filter => parseFilter(filter, content(colsForFilterWithIndex.get(getAttr(filter)).get))
+                      filter => parseFilter(filter, content(colsForFilterWithIndex(getAttr(filter))))
                     }
                   }
                 }.map(_._1)
               }
 
-              rowKeys.foreach(pipeline.hmget(_, requiredColumns:_*))
-              val res = pipeline.syncAndReturnAll.map{
+              rowKeys.foreach(pipeline.hmget(_, requiredColumns: _*))
+              val res = pipeline.syncAndReturnAll.map {
                 _.asInstanceOf[util.ArrayList[String]].zip(requiredColumnsType).map {
-                  case(col, targetType) => castToTarget(col, targetType)
+                  case (col, targetType) => castToTarget(col, targetType)
                 }
               }
               conn.close
@@ -143,6 +146,7 @@ case class RedisRelation(parameters: Map[String, String], userSchema: StructType
   private def getDataType(attr: String) = {
     schema.fields(schema.fieldIndex(attr)).dataType
   }
+
   private def parseFilter(f: Filter, target: String) = {
     f match {
       case EqualTo(attribute, value) => {

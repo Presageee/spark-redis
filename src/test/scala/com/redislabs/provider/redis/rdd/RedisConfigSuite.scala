@@ -6,8 +6,8 @@ import redis.clients.util.JedisClusterCRC16
 
 class RedisConfigSuite extends FunSuite with ShouldMatchers {
 
-  val redisStandaloneConfig = new RedisConfig(new RedisEndpoint("127.0.0.1", 6379, "passwd"))
-  val redisClusterConfig = new RedisConfig(new RedisEndpoint("127.0.0.1", 7379))
+  val redisStandaloneConfig = new RedisConfig(new RedisEndpoint("127.0.0.1", 6479))
+  val redisClusterConfig = new RedisConfig(new RedisEndpoint("127.0.0.1", 6479))
 
   test("getNodesBySlots") {
     assert(redisStandaloneConfig.getNodesBySlots(0, 16383).size == 1)

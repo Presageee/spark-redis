@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.redislabs</groupId>
 	<artifactId>spark-redis</artifactId>
-	<version>0.3.2</version>
+	<version>0.3.2-2.1.1</version>
 	<name>Spark-Redis</name>
 	<description>A Spark library for Redis</description>
 	<url>http://github.com/RedisLabs/spark-redis</url>
@@ -11,11 +11,11 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.7</java.version>
-		<scala.minor.version>2.10</scala.minor.version>
+		<java.version>1.8</java.version>
+		<scala.minor.version>2.11</scala.minor.version>
 		<scala.complete.version>${scala.minor.version}.4</scala.complete.version>
-		<jedis.version>2.7.2</jedis.version>
-		<spark.version>1.4.1</spark.version>
+		<jedis.version>2.9.0</jedis.version>
+		<spark.version>2.1.1</spark.version>
 	</properties>
 
 	<build>
@@ -236,4 +236,16 @@
 			<scope>test</scope>
 		</dependency>
     </dependencies>
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<name>Nexus Release Repository</name>
+			<url>http://mvn.sz.sensetime.com:8888/nexus/content/repositories/releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Nexus Snapshot Repository</name>
+			<url>http://mvn.sz.sensetime.com:8888/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
