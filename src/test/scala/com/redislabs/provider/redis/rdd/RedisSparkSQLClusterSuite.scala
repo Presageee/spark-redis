@@ -13,10 +13,10 @@ class RedisSparkSQLClusterSuite extends FunSuite with ENV with BeforeAndAfterAll
 
     sc = new SparkContext(new SparkConf()
       .setMaster("local[*]").setAppName(getClass.getName)
-      .set("redis.host", "172.20.12.55")
-      .set("redis.port", "6479")
+      .set("redis.host", "172.20.2.60")
+      .set("redis.port", "7000")
     )
-    redisConfig = new RedisConfig(new RedisEndpoint("172.20.12.55", 6479))
+    redisConfig = new RedisConfig(new RedisEndpoint("172.20.2.60", 7000))
 
     // Flush all the hosts
     redisConfig.hosts.foreach( node => {
@@ -39,12 +39,12 @@ class RedisSparkSQLClusterSuite extends FunSuite with ENV with BeforeAndAfterAll
 //    dd.show()
 //    dd.registerTempTable("rl")
 
-    (1 to 10000000).foreach{
-      index => {
-        sqlContext.sql(s"insert overwrite table rl select t.* from (select 'rl${index}'," +
-          s" '7qpXQpFlAACAAAAAH/Y5vVPnr73i43a9nDkRPgAiYD3Itjq9pZmhOzS+RL3cONk9tWbMPeMjLblv/Qo+ZEiIPSq0hjwM2vi99FRVPXfHsb21hoG9pT4ovUxVcjxb9Sw9k9mTvTRoFL68kTw+he0HvhGOYr1+SFW99jMXPRLgU73rDPm9QdysvH6qjT3JlxI+vIcavfGwPL13fJy9eOnSPRulob3WVaS9Br52vVm4Cr2KN+48mz3nPLg5kz1AdSu+SfUGvVEwtz311qg9otnuvHk3aj6tzVC9lo5+PkEZBj6oRa69bxcqvYaizL38JK+9mguFvTx7t70MA4I9haJQvag9NL56v6G9JlV2PWxPJL0uWfg95C2PPTLt1LxMJU+9k9TjPZkHkzuvZbw9K89LPWM4obuwxJC99GDTO/RAG75qvvo9TEOZPdpsDz7JPJ09PCcJOxyxgT2231i8KJxUPPRs3D3Z9Qu9ZdAPvklhy7xll5k6uzz4OzvL9DwWOaE9QLDLPQksXb21ey4+z4WnPFkawTwYZ429z7EOvgCerz3rY4I9vshavbAo0zuRWgq95ijavXCjIj5v0tY85S4bPZ/rqDwgp949qgBWvl1T771XQi+9LmSzPUxcajzuuTE9Y2mzvbXO872f7ty8i/S1OwXiEr3Im/i8SwFPPuOZh714Mra8jaugu4pcnz0=') t")
-      }
-    }
+//    (1 to 10000000).foreach{
+//      index => {
+//        sqlContext.sql(s"insert overwrite table rl select t.* from (select 'rl${index}'," +
+//          s" '7qpXQpFlAACAAAAAH/Y5vVPnr73i43a9nDkRPgAiYD3Itjq9pZmhOzS+RL3cONk9tWbMPeMjLblv/Qo+ZEiIPSq0hjwM2vi99FRVPXfHsb21hoG9pT4ovUxVcjxb9Sw9k9mTvTRoFL68kTw+he0HvhGOYr1+SFW99jMXPRLgU73rDPm9QdysvH6qjT3JlxI+vIcavfGwPL13fJy9eOnSPRulob3WVaS9Br52vVm4Cr2KN+48mz3nPLg5kz1AdSu+SfUGvVEwtz311qg9otnuvHk3aj6tzVC9lo5+PkEZBj6oRa69bxcqvYaizL38JK+9mguFvTx7t70MA4I9haJQvag9NL56v6G9JlV2PWxPJL0uWfg95C2PPTLt1LxMJU+9k9TjPZkHkzuvZbw9K89LPWM4obuwxJC99GDTO/RAG75qvvo9TEOZPdpsDz7JPJ09PCcJOxyxgT2231i8KJxUPPRs3D3Z9Qu9ZdAPvklhy7xll5k6uzz4OzvL9DwWOaE9QLDLPQksXb21ey4+z4WnPFkawTwYZ429z7EOvgCerz3rY4I9vshavbAo0zuRWgq95ijavXCjIj5v0tY85S4bPZ/rqDwgp949qgBWvl1T771XQi+9LmSzPUxcajzuuTE9Y2mzvbXO872f7ty8i/S1OwXiEr3Im/i8SwFPPuOZh714Mra8jaugu4pcnz0=') t")
+//      }
+//    }
       //val dd = sqlContext.sql(s"select * from rl*")
   }
 
